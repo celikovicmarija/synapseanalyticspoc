@@ -1,0 +1,114 @@
+{
+	"name": "Notebook 1",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "devpoolpoc",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "9c96232d-7ed8-4173-a5de-383627967419"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/77d244ec-57f9-41f3-b083-caf33c8f4966/resourceGroups/marija-practice/providers/Microsoft.Synapse/workspaces/marijapractice/bigDataPools/devpoolpoc",
+				"name": "devpoolpoc",
+				"type": "Spark",
+				"endpoint": "https://marijapractice.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/devpoolpoc",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.3",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"# Import required libraries\r\n",
+					"from pyspark.sql import SparkSession\r\n",
+					"from pyspark.sql.functions import col\r\n",
+					"\r\n",
+					"# Create a SparkSession\r\n",
+					"spark = SparkSession.builder \\\r\n",
+					"    .appName(\"MedicalDataAnalysis\") \\\r\n",
+					"    .getOrCreate()\r\n",
+					"\r\n",
+					"# Manually create a small dataset with medical data\r\n",
+					"data = [\r\n",
+					"    (\"John\", 35, \"Male\", 170, 75, \"Hypertension\"),\r\n",
+					"    (\"Alice\", 28, \"Female\", 160, 60, \"Normal\"),\r\n",
+					"    (\"Bob\", 45, \"Male\", 180, 90, \"Hypertension\"),\r\n",
+					"    (\"Emily\", 50, \"Female\", 165, 65, \"Normal\"),\r\n",
+					"    (\"Mike\", 40, \"Male\", 175, 80, \"Diabetes\"),\r\n",
+					"    (\"Sophia\", 32, \"Female\", 155, 55, \"Normal\")\r\n",
+					"]\r\n",
+					"\r\n",
+					"# Define the schema for the dataset\r\n",
+					"schema = [\"Name\", \"Age\", \"Gender\", \"Height\", \"Weight\", \"Condition\"]\r\n",
+					"\r\n",
+					"# Create a DataFrame from the data and schema\r\n",
+					"df = spark.createDataFrame(data, schema=schema)\r\n",
+					"\r\n",
+					"# Display the DataFrame\r\n",
+					"print(\"Original DataFrame:\")\r\n",
+					"df.show()\r\n",
+					"\r\n",
+					"# Perform some basic transformations\r\n",
+					"# Filter for patients with hypertension\r\n",
+					"hypertension_patients = df.filter(col(\"Condition\") == \"Hypertension\")\r\n",
+					"\r\n",
+					"# Filter for patients with normal conditions\r\n",
+					"normal_patients = df.filter(col(\"Condition\") == \"Normal\")\r\n",
+					"\r\n",
+					"# Calculate average age for male patients\r\n",
+					"avg_age_male = df.filter(col(\"Gender\") == \"Male\").agg({\"Age\": \"avg\"}).collect()[0][0]\r\n",
+					"\r\n",
+					"# Calculate average age for female patients\r\n",
+					"avg_age_female = df.filter(col(\"Gender\") == \"Female\").agg({\"Age\": \"avg\"}).collect()[0][0]\r\n",
+					"\r\n",
+					"# Display the results\r\n",
+					"print(\"\\nPatients with Hypertension:\")\r\n",
+					"hypertension_patients.show()\r\n",
+					"\r\n",
+					"print(\"\\nPatients with Normal Condition:\")\r\n",
+					"normal_patients.show()\r\n",
+					"\r\n",
+					"print(\"\\nAverage age of Male patients:\", avg_age_male)\r\n",
+					"print(\"Average age of Female patients:\", avg_age_female)\r\n",
+					"\r\n",
+					"# Stop the SparkSession\r\n",
+					"spark.stop()\r\n",
+					""
+				],
+				"execution_count": 1
+			}
+		]
+	}
+}
